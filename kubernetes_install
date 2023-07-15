@@ -1,0 +1,59 @@
+
+A) Pre-Requisites for Installing Kubeadm
+   -------------------------------------
+1) 2 GB or more of RAM per machine (AWS- For master node- t2.medium and for worker node- t2.micro is enough)
+2) 2 CPUs or more.
+3) container runtime (Docker have to be installed) 
+ --> To install docker 
+  sudo apt-get update
+  sudo apt-get install docker.io -y (Docker will be installed)
+
+4) sudo mkdir -p /etc/apt/keyrings (If you are using olderthan Debian 12 and Ubuntu 22.04 versions)
+
+B) Kubeadm Cluster Installation in Ubuntu
+   ---------------------------------------
+1) sudo apt-get install -y apt-transport-https ca-certificates curl
+
+2) curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+
+3) echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+4) sudo apt-get update
+
+5) sudo apt-get install -y kubelet kubeadm kubectl
+
+We have to execute the all the above commands in all kubernetes cluster related systems and then we will proceed for master node and worker node configuration.
+
+6) kubeadm init (to be executed in 2GB RAM and 2 CPU's instance only, for initializing as Master node)
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+7) kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml (DNS configuration)
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+Generated token in your master node to be copied and executed in worker node
+
+It looks like as - kubeadm join 172.31.7.104:6443 --token zza0n.cngj \
+--discovery-token-ca-cert-hash sha256:f3a78d6c2875743457 
+
+
+To check nodes status
+
+kubectl get nodes
+
+
+Then our kubernetes cluster will be ready.
+ 
+
+ 
