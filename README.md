@@ -1,2 +1,2 @@
 # documents
-Installation related documents 
+Installation and configuring related documents 
