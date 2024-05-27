@@ -1,0 +1,47 @@
+pipeline{
+    agent any
+    tools {
+        maven 'maven-3.9.2'
+    }
+    stages{
+        stage('Code_Pull'){
+            steps{
+                git branch: 'main', url: 'https://github.com/mannem302/AnilKumar.git'
+            }
+        }
+        stage('Code_Build'){
+            steps{
+                sh 'mvn clean package'
+            }
+        }
+        stage('Code_Quality_Analysis'){
+            steps{
+                sh 'mvn sonar:sonar'
+            }
+        }
+        stage('Image_Build'){
+            steps{
+                sh 'docker build -t mannem302/tomcat:$BUILD_ID .'
+            }
+        }
+        stage('Image_Push'){
+            steps{
+            withDockerRegistry(credentialsId: 'dockerhub', url: 'https://index.docker.io/v1/') {
+           sh 'docker push mannem302/tomcat:$BUILD_ID'
+             }
+          }
+        }
+        stage('Deploy'){
+            steps{
+                sshagent(['staging_server']) {
+                    sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@13.127.36.54 << EOF
+                    docker pull mannem302/tomcat:$BUILD_ID
+                    docker run -d --name webapp$BUILD_ID -p ${i}:8080 mannem302/tomcat:$BUILD_ID
+                    '''
+             }
+            }
+        }
+        
+    }
+}
